@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Detailing\CreateRequest;
 use App\Http\Requests\Detailing\EditRequest;
-use App\Http\Resources\DetailingResource;
 use App\Models\Detailing;
 use App\Services\DetailingService;
-use Illuminate\Http\Response;
 
 class DetailingController extends Controller
 {
@@ -15,30 +13,31 @@ class DetailingController extends Controller
     {
     }
 
-    public function delete(Detailing $detailing): Response
+    public function delete(Detailing $detailing)
     {
         $this->detailingService->delete($detailing);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('detailing.list');
     }
 
-    public function create(CreateRequest $request): DetailingResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $detailing = $this->detailingService->create($data);
 
-        return new DetailingResource($detailing);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('detailing.show', ['detailing' => $detailing->id]);
     }
 
-    public function edit(Detailing $detailing, EditRequest $request): DetailingResource
+    public function edit(Detailing $detailing, EditRequest $request)
     {
         $data = $request->validated();
         $this->detailingService->edit($detailing, $data);
 
-        return new DetailingResource($detailing);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('detailing.show', ['detailing' => $detailing->id]);
     }
 
     public function createForm()

@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Tire\CreateRequest;
 use App\Http\Requests\Tire\EditRequest;
-use App\Http\Resources\TireResource;
 use App\Models\Tire;
 use App\Services\TireService;
-use Illuminate\Http\Response;
 
 class TireController extends Controller
 {
@@ -15,30 +13,31 @@ class TireController extends Controller
     {
     }
 
-    public function create(CreateRequest $request): TireResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $tire = $this->tireService->create($data);
 
-        return new TireResource($tire);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('tire.show', ['tire' => $tire->id]);
     }
 
-    public function edit(Tire $tire, EditRequest $request): TireResource
+    public function edit(Tire $tire, EditRequest $request)
     {
         $data = $request->validated();
         $this->tireService->edit($tire, $data);
 
-        return new TireResource($tire);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('tire.show', ['tire' => $tire->id]);
     }
 
-    public function delete(Tire $tire): Response
+    public function delete(Tire $tire)
     {
         $this->tireService->delete($tire);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('tire.list');
     }
 
     public function createForm()

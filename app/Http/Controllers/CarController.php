@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Car\CreateRequest;
 use App\Http\Requests\Car\EditRequest;
-use App\Http\Resources\CarResource;
 use App\Models\Car;
 use App\Services\CarService;
-use Illuminate\Http\Response;
 
 class CarController extends Controller
 {
@@ -15,30 +13,31 @@ class CarController extends Controller
     {
     }
 
-    public function delete(Car $car): Response
+    public function delete(Car $car)
     {
         $this->carService->delete($car);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('car.list');
     }
 
-    public function create(CreateRequest $request): CarResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $car = $this->carService->create($data);
 
-        return new CarResource($car);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('car.show', ['car' => $car->id]);
     }
 
-    public function edit(Car $car, EditRequest $request): CarResource
+    public function edit(Car $car, EditRequest $request)
     {
         $data = $request->validated();
         $this->carService->edit($car, $data);
 
-        return new CarResource($car);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('car.show', ['car' => $car->id]);
     }
 
     public function createForm()

@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Schedservice\CreateRequest;
 use App\Http\Requests\Schedservice\EditRequest;
-use App\Http\Resources\SchedserviceResource;
 use App\Models\Schedservice;
 use App\Services\SchedserviceService;
-use Illuminate\Http\Response;
 
 class SchedserviceController extends Controller
 {
@@ -15,30 +13,31 @@ class SchedserviceController extends Controller
     {
     }
 
-    public function create(CreateRequest $request): SchedserviceResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $schedservice = $this->schedserviceService->create($data);
 
-        return new SchedserviceResource($schedservice);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('schedservice.show', ['schedservice' => $schedservice->id]);
     }
 
-    public function edit(Schedservice $schedservice, EditRequest $request): SchedserviceResource
+    public function edit(Schedservice $schedservice, EditRequest $request)
     {
         $data = $request->validated();
         $this->schedserviceService->edit($schedservice, $data);
 
-        return new SchedserviceResource($schedservice);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('schedservice.show', ['schedservice' => $schedservice->id]);
     }
 
-    public function delete(Schedservice $schedservice): Response
+    public function delete(Schedservice $schedservice)
     {
         $this->schedserviceService->delete($schedservice);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('schedservice.list');
     }
 
     public function createForm()

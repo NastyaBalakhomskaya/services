@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Scheddetailing\CreateRequest;
 use App\Http\Requests\Scheddetailing\EditRequest;
-use App\Http\Resources\ScheddetailingResource;
 use App\Models\Scheddetailing;
 use App\Services\ScheddetailingService;
-use Illuminate\Http\Response;
 
 class ScheddetailingController extends Controller
 {
@@ -15,30 +13,31 @@ class ScheddetailingController extends Controller
     {
     }
 
-    public function delete(Scheddetailing $scheddetailing): Response
+    public function delete(Scheddetailing $scheddetailing)
     {
         $this->scheddetailingService->delete($scheddetailing);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('scheddetailing.list');
     }
 
-    public function create(CreateRequest $request): ScheddetailingResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $scheddetailing = $this->scheddetailingService->create($data);
 
-        return new ScheddetailingResource($scheddetailing);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('scheddetailing.show', ['scheddetailing' => $scheddetailing->id]);
     }
 
-    public function edit(Scheddetailing $scheddetailing, EditRequest $request): ScheddetailingResource
+    public function edit(Scheddetailing $scheddetailing, EditRequest $request)
     {
         $data = $request->validated();
         $this->scheddetailingService->edit($scheddetailing, $data);
 
-        return new ScheddetailingResource($scheddetailing);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('scheddetailing.show', ['scheddetailing' => $scheddetailing->id]);
     }
 
     public function createForm()

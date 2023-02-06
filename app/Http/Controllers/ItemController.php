@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Item\CreateRequest;
 use App\Http\Requests\Item\EditRequest;
-use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use App\Services\ItemService;
-use Illuminate\Http\Response;
 
 class ItemController extends Controller
 {
@@ -15,30 +13,31 @@ class ItemController extends Controller
     {
     }
 
-    public function create(CreateRequest $request): ItemResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $item = $this->itemService->create($data);
 
-        return new ItemResource($item);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('item.show', ['item' => $item->id]);
     }
 
-    public function edit(Item $item, EditRequest $request): ItemResource
+    public function edit(Item $item, EditRequest $request)
     {
         $data = $request->validated();
         $this->itemService->edit($item, $data);
 
-        return new ItemResource($item);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('item.show', ['item' => $item->id]);
     }
 
-    public function delete(Item $item): Response
+    public function delete(Item $item)
     {
         $this->itemService->delete($item);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('item.list');
     }
 
     public function createForm()

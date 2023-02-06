@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Schedtire\CreateRequest;
 use App\Http\Requests\Schedtire\EditRequest;
-use App\Http\Resources\SchedtireResource;
 use App\Models\Schedtire;
 use App\Services\SchedtireService;
-use Illuminate\Http\Response;
 
 class SchedtireController extends Controller
 {
@@ -15,30 +13,31 @@ class SchedtireController extends Controller
     {
     }
 
-    public function create(CreateRequest $request): SchedtireResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $schedtire = $this->schedtireService->create($data);
 
-        return new SchedtireResource($schedtire);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('schedtire.show', ['schedtire' => $schedtire->id]);
     }
 
-    public function edit(Schedtire $schedtire, EditRequest $request): SchedtireResource
+    public function edit(Schedtire $schedtire, EditRequest $request)
     {
         $data = $request->validated();
         $this->schedtireService->edit($schedtire, $data);
 
-        return new SchedtireResource($schedtire);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('schedtire.show', ['schedtire' => $schedtire->id]);
     }
 
-    public function delete(Schedtire $schedtire): Response
+    public function delete(Schedtire $schedtire)
     {
         $this->schedtireService->delete($schedtire);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('schedtire.list');
     }
 
     public function createForm()

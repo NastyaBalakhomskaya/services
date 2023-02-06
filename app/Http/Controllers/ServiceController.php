@@ -6,7 +6,6 @@ use App\Http\Requests\Service\CreateRequest;
 use App\Http\Requests\Service\EditRequest;
 use App\Models\Service;
 use App\Services\ServiceService;
-use Illuminate\Http\Response;
 
 class ServiceController extends Controller
 {
@@ -14,14 +13,11 @@ class ServiceController extends Controller
     {
     }
 
-    public function delete(Service $service): Response
+    public function delete(Service $service)
     {
         $this->serviceService->delete($service);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('service.list');
     }
 
     public function create(CreateRequest $request)

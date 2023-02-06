@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Status\CreateRequest;
 use App\Http\Requests\Status\EditRequest;
-use App\Http\Resources\StatusResource;
 use App\Models\Status;
 use App\Services\StatusService;
-use Illuminate\Http\Response;
 
 class StatusController extends Controller
 {
@@ -15,30 +13,31 @@ class StatusController extends Controller
     {
     }
 
-    public function create(CreateRequest $request): StatusResource
+    public function create(CreateRequest $request)
     {
         $data = $request->validated();
         $status = $this->statusService->create($data);
 
-        return new StatusResource($status);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('status.show', ['status' => $status->id]);
     }
 
-    public function edit(Status $status, EditRequest $request): StatusResource
+    public function edit(Status $status, EditRequest $request)
     {
         $data = $request->validated();
         $this->statusService->edit($status, $data);
 
-        return new StatusResource($status);
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('status.show', ['status' => $status->id]);
     }
 
-    public function delete(Status $status): Response
+    public function delete(Status $status)
     {
         $this->statusService->delete($status);
-        $data = [
-            'message' => 'success',
-        ];
 
-        return response($data, status: 200);
+        return redirect()->route('status.list');
     }
 
     public function createForm()
