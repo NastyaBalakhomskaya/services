@@ -5,31 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Tire\CreateRequest;
 use App\Http\Requests\Tire\EditRequest;
 use App\Models\Tire;
+use App\Services\TireService;
 
 class TireController extends Controller
 {
-    public function createForm()
+    public function __construct(private TireService $tireService)
     {
-        return view('tire.create');
-    }
-
-    public function editForm(Tire $tire)
-    {
-        return view('tire.edit', compact('tire'));
-    }
-
-    public function delete(Tire $tire)
-    {
-        $tire->delete();
-
-        return redirect()->route('tire.list');
     }
 
     public function create(CreateRequest $request)
     {
         $data = $request->validated();
-        $tire = new Tire($data);
-        $tire->save();
+        $tire = $this->tireService->create($data);
 
         session()->flash('success', 'Success!');
 
@@ -39,12 +26,28 @@ class TireController extends Controller
     public function edit(Tire $tire, EditRequest $request)
     {
         $data = $request->validated();
-        $tire->fill($data);
-        $tire->save();
+        $this->tireService->edit($tire, $data);
 
         session()->flash('success', 'Success!');
 
         return redirect()->route('tire.show', ['tire' => $tire->id]);
+    }
+
+    public function delete(Tire $tire)
+    {
+        $this->tireService->delete($tire);
+
+        return redirect()->route('tire.list');
+    }
+
+    public function createForm()
+    {
+        return view('tire.create');
+    }
+
+    public function editForm(Tire $tire)
+    {
+        return view('tire.edit', compact('tire'));
     }
 
     public function list()

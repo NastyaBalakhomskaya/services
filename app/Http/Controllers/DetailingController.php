@@ -5,9 +5,41 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Detailing\CreateRequest;
 use App\Http\Requests\Detailing\EditRequest;
 use App\Models\Detailing;
+use App\Services\DetailingService;
 
 class DetailingController extends Controller
 {
+    public function __construct(private DetailingService $detailingService)
+    {
+    }
+
+    public function delete(Detailing $detailing)
+    {
+        $this->detailingService->delete($detailing);
+
+        return redirect()->route('detailing.list');
+    }
+
+    public function create(CreateRequest $request)
+    {
+        $data = $request->validated();
+        $detailing = $this->detailingService->create($data);
+
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('detailing.show', ['detailing' => $detailing->id]);
+    }
+
+    public function edit(Detailing $detailing, EditRequest $request)
+    {
+        $data = $request->validated();
+        $this->detailingService->edit($detailing, $data);
+
+        session()->flash('success', 'Success!');
+
+        return redirect()->route('detailing.show', ['detailing' => $detailing->id]);
+    }
+
     public function createForm()
     {
         return view('detailing.create');
@@ -17,37 +49,6 @@ class DetailingController extends Controller
     {
         //$detailing = Detailing::query()->findOrFail($id);
         return view('detailing.edit', compact('detailing'));
-    }
-
-    public function delete(Detailing $detailing)
-    {
-        // $detailing = Detailing::query()->findOrFail($id)->delete();
-        $detailing->delete();
-
-        return redirect()->route('detailing.list');
-    }
-
-    public function create(CreateRequest $request)
-    {
-        $data = $request->validated();
-        $detailing = new Detailing($data);
-        $detailing->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('detailing.show', ['detailing' => $detailing->id]);
-    }
-
-    public function edit(Detailing $detailing, EditRequest $request)
-    {
-        //$detailing = Detailing::query()->findOrFail($id);
-        $data = $request->validated();
-        $detailing->fill($data);
-        $detailing->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('detailing.show', ['detailing' => $detailing->id]);
     }
 
     public function list()

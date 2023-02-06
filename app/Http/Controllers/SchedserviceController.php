@@ -5,31 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Schedservice\CreateRequest;
 use App\Http\Requests\Schedservice\EditRequest;
 use App\Models\Schedservice;
+use App\Services\SchedserviceService;
 
 class SchedserviceController extends Controller
 {
-    public function createForm()
+    public function __construct(private SchedserviceService $schedserviceService)
     {
-        return view('schedservice.create');
-    }
-
-    public function editForm(Schedservice $schedservice)
-    {
-        return view('schedservice.edit', compact('schedservice'));
-    }
-
-    public function delete(Schedservice $schedservice)
-    {
-        $schedservice->delete();
-
-        return redirect()->route('schedservice.list');
     }
 
     public function create(CreateRequest $request)
     {
         $data = $request->validated();
-        $schedservice = new Schedservice($data);
-        $schedservice->save();
+        $schedservice = $this->schedserviceService->create($data);
 
         session()->flash('success', 'Success!');
 
@@ -39,12 +26,28 @@ class SchedserviceController extends Controller
     public function edit(Schedservice $schedservice, EditRequest $request)
     {
         $data = $request->validated();
-        $schedservice->fill($data);
-        $schedservice->save();
+        $this->schedserviceService->edit($schedservice, $data);
 
         session()->flash('success', 'Success!');
 
         return redirect()->route('schedservice.show', ['schedservice' => $schedservice->id]);
+    }
+
+    public function delete(Schedservice $schedservice)
+    {
+        $this->schedserviceService->delete($schedservice);
+
+        return redirect()->route('schedservice.list');
+    }
+
+    public function createForm()
+    {
+        return view('schedservice.create');
+    }
+
+    public function editForm(Schedservice $schedservice)
+    {
+        return view('schedservice.edit', compact('schedservice'));
     }
 
     public function list()

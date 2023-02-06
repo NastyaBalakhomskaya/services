@@ -13,19 +13,9 @@ class ServiceController extends Controller
     {
     }
 
-    public function createForm()
-    {
-        return view('services.create');
-    }
-
-    public function editForm(Service $service)
-    {
-        return view('services.edit', compact('service'));
-    }
-
     public function delete(Service $service)
     {
-        $service->delete();
+        $this->serviceService->delete($service);
 
         return redirect()->route('service.list');
     }
@@ -48,6 +38,16 @@ class ServiceController extends Controller
         session()->flash('success', 'Success!');
 
         return redirect()->route('service.show', ['service' => $service->id]);
+    }
+
+    public function createForm()
+    {
+        return view('services.create');
+    }
+
+    public function editForm(Service $service)
+    {
+        return view('services.edit', compact('service'));
     }
 
     public function list()

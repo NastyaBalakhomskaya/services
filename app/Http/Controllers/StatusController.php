@@ -5,31 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Status\CreateRequest;
 use App\Http\Requests\Status\EditRequest;
 use App\Models\Status;
+use App\Services\StatusService;
 
 class StatusController extends Controller
 {
-    public function createForm()
+    public function __construct(private StatusService $statusService)
     {
-        return view('status.create');
-    }
-
-    public function editForm(Status $status)
-    {
-        return view('status.edit', compact('status'));
-    }
-
-    public function delete(Status $status)
-    {
-        $status->delete();
-
-        return redirect()->route('status.list');
     }
 
     public function create(CreateRequest $request)
     {
         $data = $request->validated();
-        $status = new Status($data);
-        $status->save();
+        $status = $this->statusService->create($data);
 
         session()->flash('success', 'Success!');
 
@@ -39,12 +26,28 @@ class StatusController extends Controller
     public function edit(Status $status, EditRequest $request)
     {
         $data = $request->validated();
-        $status->fill($data);
-        $status->save();
+        $this->statusService->edit($status, $data);
 
         session()->flash('success', 'Success!');
 
         return redirect()->route('status.show', ['status' => $status->id]);
+    }
+
+    public function delete(Status $status)
+    {
+        $this->statusService->delete($status);
+
+        return redirect()->route('status.list');
+    }
+
+    public function createForm()
+    {
+        return view('status.create');
+    }
+
+    public function editForm(Status $status)
+    {
+        return view('status.edit', compact('status'));
     }
 
     public function list()
