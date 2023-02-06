@@ -4,10 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Scheddetailing\CreateRequest;
 use App\Http\Requests\Scheddetailing\EditRequest;
+use App\Http\Resources\ScheddetailingResource;
 use App\Models\Scheddetailing;
+use App\Services\ScheddetailingService;
+use Illuminate\Http\Response;
 
 class ScheddetailingController extends Controller
 {
+    public function __construct(private ScheddetailingService $scheddetailingService)
+    {
+    }
+
+    public function delete(Scheddetailing $scheddetailing): Response
+    {
+        $this->scheddetailingService->delete($scheddetailing);
+        $data = [
+            'message' => 'success',
+        ];
+
+        return response($data, status: 200);
+    }
+
+    public function create(CreateRequest $request): ScheddetailingResource
+    {
+        $data = $request->validated();
+        $scheddetailing = $this->scheddetailingService->create($data);
+
+        return new ScheddetailingResource($scheddetailing);
+    }
+
+    public function edit(Scheddetailing $scheddetailing, EditRequest $request): ScheddetailingResource
+    {
+        $data = $request->validated();
+        $this->scheddetailingService->edit($scheddetailing, $data);
+
+        return new ScheddetailingResource($scheddetailing);
+    }
+
     public function createForm()
     {
         return view('scheddetailing.create');
@@ -16,35 +49,6 @@ class ScheddetailingController extends Controller
     public function editForm(Scheddetailing $scheddetailing)
     {
         return view('scheddetailing.edit', compact('scheddetailing'));
-    }
-
-    public function delete(Scheddetailing $scheddetailing)
-    {
-        $scheddetailing->delete();
-
-        return redirect()->route('scheddetailing.list');
-    }
-
-    public function create(CreateRequest $request)
-    {
-        $data = $request->validated();
-        $scheddetailing = new Scheddetailing($data);
-        $scheddetailing->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('scheddetailing.show', ['scheddetailing' => $scheddetailing->id]);
-    }
-
-    public function edit(Scheddetailing $scheddetailing, EditRequest $request)
-    {
-        $data = $request->validated();
-        $scheddetailing->fill($data);
-        $scheddetailing->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('scheddetailing.show', ['scheddetailing' => $scheddetailing->id]);
     }
 
     public function list()

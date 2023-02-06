@@ -6,6 +6,7 @@ use App\Http\Requests\Service\CreateRequest;
 use App\Http\Requests\Service\EditRequest;
 use App\Models\Service;
 use App\Services\ServiceService;
+use Illuminate\Http\Response;
 
 class ServiceController extends Controller
 {
@@ -13,21 +14,14 @@ class ServiceController extends Controller
     {
     }
 
-    public function createForm()
+    public function delete(Service $service): Response
     {
-        return view('services.create');
-    }
+        $this->serviceService->delete($service);
+        $data = [
+            'message' => 'success',
+        ];
 
-    public function editForm(Service $service)
-    {
-        return view('services.edit', compact('service'));
-    }
-
-    public function delete(Service $service)
-    {
-        $service->delete();
-
-        return redirect()->route('service.list');
+        return response($data, status: 200);
     }
 
     public function create(CreateRequest $request)
@@ -48,6 +42,16 @@ class ServiceController extends Controller
         session()->flash('success', 'Success!');
 
         return redirect()->route('service.show', ['service' => $service->id]);
+    }
+
+    public function createForm()
+    {
+        return view('services.create');
+    }
+
+    public function editForm(Service $service)
+    {
+        return view('services.edit', compact('service'));
     }
 
     public function list()

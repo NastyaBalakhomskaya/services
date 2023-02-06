@@ -4,10 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Schedservice\CreateRequest;
 use App\Http\Requests\Schedservice\EditRequest;
+use App\Http\Resources\SchedserviceResource;
 use App\Models\Schedservice;
+use App\Services\SchedserviceService;
+use Illuminate\Http\Response;
 
 class SchedserviceController extends Controller
 {
+    public function __construct(private SchedserviceService $schedserviceService)
+    {
+    }
+
+    public function create(CreateRequest $request): SchedserviceResource
+    {
+        $data = $request->validated();
+        $schedservice = $this->schedserviceService->create($data);
+
+        return new SchedserviceResource($schedservice);
+    }
+
+    public function edit(Schedservice $schedservice, EditRequest $request): SchedserviceResource
+    {
+        $data = $request->validated();
+        $this->schedserviceService->edit($schedservice, $data);
+
+        return new SchedserviceResource($schedservice);
+    }
+
+    public function delete(Schedservice $schedservice): Response
+    {
+        $this->schedserviceService->delete($schedservice);
+        $data = [
+            'message' => 'success',
+        ];
+
+        return response($data, status: 200);
+    }
+
     public function createForm()
     {
         return view('schedservice.create');
@@ -16,35 +49,6 @@ class SchedserviceController extends Controller
     public function editForm(Schedservice $schedservice)
     {
         return view('schedservice.edit', compact('schedservice'));
-    }
-
-    public function delete(Schedservice $schedservice)
-    {
-        $schedservice->delete();
-
-        return redirect()->route('schedservice.list');
-    }
-
-    public function create(CreateRequest $request)
-    {
-        $data = $request->validated();
-        $schedservice = new Schedservice($data);
-        $schedservice->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('schedservice.show', ['schedservice' => $schedservice->id]);
-    }
-
-    public function edit(Schedservice $schedservice, EditRequest $request)
-    {
-        $data = $request->validated();
-        $schedservice->fill($data);
-        $schedservice->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('schedservice.show', ['schedservice' => $schedservice->id]);
     }
 
     public function list()

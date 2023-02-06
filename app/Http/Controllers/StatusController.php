@@ -4,10 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Status\CreateRequest;
 use App\Http\Requests\Status\EditRequest;
+use App\Http\Resources\StatusResource;
 use App\Models\Status;
+use App\Services\StatusService;
+use Illuminate\Http\Response;
 
 class StatusController extends Controller
 {
+    public function __construct(private StatusService $statusService)
+    {
+    }
+
+    public function create(CreateRequest $request): StatusResource
+    {
+        $data = $request->validated();
+        $status = $this->statusService->create($data);
+
+        return new StatusResource($status);
+    }
+
+    public function edit(Status $status, EditRequest $request): StatusResource
+    {
+        $data = $request->validated();
+        $this->statusService->edit($status, $data);
+
+        return new StatusResource($status);
+    }
+
+    public function delete(Status $status): Response
+    {
+        $this->statusService->delete($status);
+        $data = [
+            'message' => 'success',
+        ];
+
+        return response($data, status: 200);
+    }
+
     public function createForm()
     {
         return view('status.create');
@@ -16,35 +49,6 @@ class StatusController extends Controller
     public function editForm(Status $status)
     {
         return view('status.edit', compact('status'));
-    }
-
-    public function delete(Status $status)
-    {
-        $status->delete();
-
-        return redirect()->route('status.list');
-    }
-
-    public function create(CreateRequest $request)
-    {
-        $data = $request->validated();
-        $status = new Status($data);
-        $status->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('status.show', ['status' => $status->id]);
-    }
-
-    public function edit(Status $status, EditRequest $request)
-    {
-        $data = $request->validated();
-        $status->fill($data);
-        $status->save();
-
-        session()->flash('success', 'Success!');
-
-        return redirect()->route('status.show', ['status' => $status->id]);
     }
 
     public function list()
